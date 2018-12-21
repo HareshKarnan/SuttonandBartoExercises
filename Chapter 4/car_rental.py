@@ -57,8 +57,8 @@ def expectedreward(state,action,stateValue):
 	for rental_request_first_loc in range(POISSON_UPPER_BOUND):
 		for rental_request_second_loc in range(POISSON_UPPER_BOUND):
 			# moving cars
-			num_of_cars_first_loc = state[0]-action
-			num_of_cars_second_loc = state[1]-action
+			num_of_cars_first_loc = int(min(state[0]-action,max_cars))
+			num_of_cars_second_loc = int(min(state[1]-action,max_cars))
 			# ^^^^ this is the state at the next time step for the current action
 
 			# rental requests must be less than the number of cars
