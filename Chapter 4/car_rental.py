@@ -32,12 +32,16 @@ DISCOUNT=0.9
 
 actions = np.arange(-max_car_move,max_car_move+1)
 stateVal = np.zeros((max_cars+1,max_cars+1))
-
+poisson_cache = dict()
 
 # function to calculate the probability of event x happening, that follows a poisson distribution
 def poisson(x,lam):
-	# TODO [Haresh]: can use a dictionary to speed up this function execution (memoization)
-	return exp(-lam)*pow(lam,x)/factorial(x)
+	key = x*10+lam
+	if key in poisson_cache:
+		return poisson_cache[key]
+	else:
+		poisson_cache[key] = exp(-lam)*pow(lam,x)/factorial(x)
+		return poisson_cache[key]
 
 # function that returns the expected reward for being in a state and taking a particular action.
 # state : [# of the cars in the first location, # of cars in the second location]
@@ -58,8 +62,8 @@ def expectedreward(state,action,stateValue):
 			# ^^^^ this is the state at the next time step for the current action
 
 			# rental requests must be less than the number of cars
-			real_rental_first_loc = rental_request_first_loc
-			real_rental_second_loc = rental_request_second_loc
+			real_rental_first_loc = min(rental_request_first_loc,num_of_cars_first_loc)
+			real_rental_second_loc = min(rental_request_second_loc,num_of_cars_second_loc)
 
 			# get credits for renting
 			reward = (real_rental_first_loc+real_rental_second_loc) * rental_credit
@@ -106,7 +110,7 @@ def jacks_car_rental():
 			value_change = np.sum(np.abs((new_value-value)))
 			print('value change :: ',value_change)
 			value = new_value.copy()
-			if value_change<1e-4:
+			if value_change<10:
 				print('Not much change in value.. stopping iteration.. ')
 				break
 
@@ -136,6 +140,9 @@ def jacks_car_rental():
 			break
 
 		iterations += 1
+
+	plt.savefig('figure_4_2.png')
+	plt.show()
 
 if __name__=='__main__':
 	jacks_car_rental()
